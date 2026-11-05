@@ -1,0 +1,14 @@
+build/
+out/
+release/
+debug/
+*.dll
+*.o
+*.a
+*.cxx
+.vscode
+.idea
+.clangd
+CMakeCache
+cmake-buil-release
+cmake-build-debug
