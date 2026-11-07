@@ -1,0 +1,2 @@
+add_executable(bench_reduce bench_reduce.cpp)
+target_link_libraries(bench_reduce PRIVATE pqcs_math benchmark::benchmark)
