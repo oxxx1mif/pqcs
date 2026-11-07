@@ -1,0 +1,61 @@
+name: PQCS Cryptography Pipeline
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-24.04
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Install System Dependencies & Clang
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          cmake \
+          ninja-build \
+          libboost-unit-test-framework-dev \
+          libbenchmark-dev \
+          clang-18 \
+          clang-format-18
+        
+        echo "CC=clang-18" >> $GITHUB_ENV
+        echo "CXX=clang++-18" >> $GITHUB_ENV
+
+    - name: Configure CMake (Release Mode)
+      run: |
+        mkdir -p build
+        cd build
+        CC=clang-18 CXX=clang++-18 cmake .. \
+          -G Ninja \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DPQCS_BUILD_TESTS=ON \
+          -DPQCS_BUILD_BENCHMARKS=ON \
+          -DCMAKE_CXX_FLAGS="-O3 -march=native" \
+          -DCMAKE_POLICY_DEFAULT_CMP0135=NEW
+
+    - name: Build Project
+      run: |
+        cd build
+        cmake --build . -j$(nproc)
+
+    - name: Run Math Tests
+      run: |
+        cd build
+        ctest --output-on-failure --verbose
+
+    - name: Run Cryptographic Benchmarks
+      run: |
+        cd build
+        ./benchmark/bench_reduce --benchmark_min_time=0.5
+
+    - name: Check Code Formatting (Clang-Format)
+      if: github.event_name == 'pull_request'
+      run: |
+        find . -name "*.h" -o -name "*.cpp" | xargs clang-format-18 --dry-run --Werror
