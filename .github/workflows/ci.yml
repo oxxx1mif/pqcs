@@ -37,7 +37,9 @@ jobs:
           -DPQCS_BUILD_TESTS=ON \
           -DPQCS_BUILD_BENCHMARKS=ON \
           -DCMAKE_CXX_FLAGS="-O3 -march=native" \
-          -DCMAKE_POLICY_DEFAULT_CMP0135=NEW
+          -DCMAKE_POLICY_DEFAULT_CMP0135=NEW \
+          -DBENCHMARK_ENABLE_LTO=OFF \
+          -DBENCHMARK_USE_LIBCXX=OFF
 
     - name: Build Project
       run: |
