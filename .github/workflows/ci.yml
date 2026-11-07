@@ -14,25 +14,28 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Install System Dependencies & Clang
+    - name: Install System Dependencies & GCC
       run: |
         sudo apt-get update
         sudo apt-get install -y \
           cmake \
           ninja-build \
           libboost-test-dev \
-          clang-18 \
-          clang-format-18 \
-          llvm
+          gcc-14 \
+          g++-14 \
+          clang-format-18
         
-        echo "CC=clang-18" >> $GITHUB_ENV
-        echo "CXX=clang++-18" >> $GITHUB_ENV
+        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-14 100
+        sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-14 100
+        
+        echo "CC=gcc-14" >> $GITHUB_ENV
+        echo "CXX=g++-14" >> $GITHUB_ENV
 
     - name: Configure CMake (Release Mode)
       run: |
         mkdir -p build
         cd build
-        CC=clang-18 CXX=clang++-18 cmake .. \
+        CC=gcc-14 CXX=g++-14 cmake .. \
           -G Ninja \
           -DCMAKE_BUILD_TYPE=Release \
           -DPQCS_BUILD_TESTS=ON \
